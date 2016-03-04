@@ -22,4 +22,22 @@ package org.wso2.carbon.ibus.mediation.cheetah;
 public class Constants {
 
     public static final String CHEETAH_ERROR_HANDLER = "CHEETAH_ERROR_HANDLER";
+
+    public static final class QUERYDATA{
+        public static final String QUERYPROPERTIES = "QUERYPROPERTIES";
+        public static final String QUERYSTATEMENT = "QUERYSTATEMENT";
+        public static final String RESULTSET = "RESULTSET";
+        public static final String QUERYPARAMETERS = "QUERYPARAMETERS";
+    }
+
+    public static final class HTTPREQUEST{
+        public static final String REQUESTBODY = "REQUESTBODY";
+        public static final String RESPONSE_TYPE_JSON = "JSON";
+        public static final String RESPONSE_TYPE_XML = "XML";
+    }
+
+    public static final class HTTPRESPONSE{
+        public static final String RESPONSEROOT = "RESULTSET";
+    }
+
 }

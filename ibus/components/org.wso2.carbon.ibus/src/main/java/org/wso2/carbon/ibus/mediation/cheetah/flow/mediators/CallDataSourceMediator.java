@@ -19,6 +19,7 @@ package org.wso2.carbon.ibus.mediation.cheetah.flow.mediators;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.ibus.mediation.cheetah.Constants;
 import org.wso2.carbon.ibus.mediation.cheetah.config.CheetahConfigRegistry;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.AbstractMediator;
 import org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.OutboundDataSource;
@@ -89,7 +90,7 @@ public class CallDataSourceMediator extends AbstractMediator {
         //CarbonCallback callback = new FlowControllerCallback(carbonCallback, this);
 
         //dataSource.receive(carbonMessage, callback);
-        carbonMessage.setProperty("QUERYPROPERTIES",queryProperties);
+        carbonMessage.setProperty(Constants.QUERYDATA.QUERYPROPERTIES,queryProperties);
         dataSource.receive(carbonMessage,carbonCallback);
 
 

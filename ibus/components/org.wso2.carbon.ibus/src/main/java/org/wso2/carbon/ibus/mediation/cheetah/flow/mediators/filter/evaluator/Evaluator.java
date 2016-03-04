@@ -22,6 +22,7 @@ import jdk.nashorn.internal.parser.JSONParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.wso2.carbon.ibus.mediation.cheetah.Constants;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Condition;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Source;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -53,7 +54,7 @@ public class Evaluator {
         String sKey = "EMP";
         int index = 0;
         String sKeyVal = "NAME";
-        JSONObject obj = (JSONObject)carbonMessage.getProperty("REQUEST");
+        JSONObject obj = (JSONObject)carbonMessage.getProperty(Constants.HTTPREQUEST.REQUESTBODY);
         if(obj != null) {
             JSONArray root = obj.getJSONArray(sKey);
             JSONObject item = root.getJSONObject(index);
@@ -69,7 +70,7 @@ public class Evaluator {
             CharBuffer charBuffer = StandardCharsets.US_ASCII.decode(buff);
             String text = charBuffer.toString();
             JSONObject jsonobj = new JSONObject(text);
-            carbonMessage.setProperty("REQUEST",jsonobj);
+            carbonMessage.setProperty(Constants.HTTPREQUEST.REQUESTBODY,jsonobj);
            // }
         }
 
