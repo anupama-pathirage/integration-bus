@@ -2,20 +2,17 @@
 
 IntegrationFlow : Message_Router
 
-participant inboundendpointListener : InboundEndpoint(protocol("http"),port(8080),context("/router"))
+participant inboundendpointListener : InboundEndpoint(protocol("http"),port(8084),context("/router"))
 
 participant pipeline1 : Pipeline("router_flow")
 
-participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/ActivitiEmployee"),username("root"),password("root"))
+participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/books"),username("root"),password("1234"))
 
 inboundendpointListener -> pipeline1 : "request"
 
 log("Before Filter")
 
-pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter('Colombo','SriLanka'))
-outbounddatasource1 -> pipeline1 : resultset("rs0")
-
-pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter('John Williams',2))
+pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($input.Name,$input.CityID))
 outbounddatasource1 -> pipeline1 : resultset("rs2")
 
 pipeline1 -> outbounddatasource1 : query(querystatement("SELECT * FROM Employee"),queryparameter())
