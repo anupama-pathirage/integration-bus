@@ -18,6 +18,7 @@
 package org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.wuml;
 
 
+import org.wso2.carbon.ibus.mediation.cheetah.Constants;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.WUMLConfigurationBuilder;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.inbound.InboundEndpointFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.inbound.InboundEndpointType;
@@ -292,10 +293,10 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         String queryParameters = StringParserUtil.getValueWithinBrackets(ctx.queryDataDef().QUERYPARAMETERDEF().getText());
         Properties queryProperties = new Properties();
         if(queryStatement != null)
-            queryProperties.setProperty("QUERYSTATEMENT", queryStatement);
+            queryProperties.setProperty(Constants.QUERYDATA.QUERYSTATEMENT, queryStatement);
 
         if(queryParameters != null)
-            queryProperties.setProperty("QUERYPARAMETERS", queryParameters);
+            queryProperties.setProperty(Constants.QUERYDATA.QUERYPARAMETERS, queryParameters);
 
         Mediator mediator = MediatorFactory.getInstance().getMediator("calldatasource", ctx.OUTBOUNDDATASOURCENAME().getText(),queryProperties);
         if(ifMultiThenBlockStarted) {
@@ -316,13 +317,13 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         String pipelineName = ctx.PIPELINENAME().getText();
         pipelineStack.push(pipelineName);
 
-        //
+        //TODO:
         String sText = StringParserUtil.getValueWithinDoubleQuotes(ctx.queryResponseDef().getText());
         Pipeline pipelineCurr = integrationFlow.getEsbConfigHolder().getPipeline(pipelineName);
         MediatorCollection pipelineMediators = pipelineCurr.getMediators();
         Mediator prevMediator = pipelineMediators.getLastMediator();
         if(prevMediator != null && prevMediator instanceof CallDataSourceMediator)
-            prevMediator.addProperty("RESULTSET",sText);
+            prevMediator.addProperty(Constants.QUERYDATA.RESULTSET,sText);
         //
         super.exitInvokeFromTargetDataSource(ctx);
     }
