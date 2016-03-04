@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.ibus.mediation.cheetah.Constants;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.AbstractMediator;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -55,9 +56,9 @@ public class GenerateResponseMediator extends AbstractMediator {
 
     public void setConfigs(String configs) {
         if(configs != null && !configs.isEmpty()) {
-            if(configs.equalsIgnoreCase(RESPONSE_TYPE_JSON))
+            if(configs.equalsIgnoreCase(Constants.HTTPREQUEST.RESPONSE_TYPE_JSON))
                 responseType = ResponseType.json;
-            else if(configs.equalsIgnoreCase(RESPONSE_TYPE_XML))
+            else if(configs.equalsIgnoreCase(Constants.HTTPREQUEST.RESPONSE_TYPE_XML))
                 responseType = ResponseType.xml;
             else
                 log.error("Invalid Response Type Requested:"+configs+".Set to Default Type:JSON");
@@ -120,14 +121,15 @@ public class GenerateResponseMediator extends AbstractMediator {
             while (rs.next()) {
 
                 int iColumnCount = rsmd.getColumnCount();
+                JSONObject obj = new JSONObject();
                 for(int i=1; i<=iColumnCount; i++)
                 {
                     String sColumnName = rsmd.getColumnName(i);
                     String sValue = rs.getString(i);
-                    JSONObject obj = new JSONObject();
                     obj.put(sColumnName,sValue);
-                    ja.put(obj);
+
                 }
+                ja.put(obj);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -137,7 +139,7 @@ public class GenerateResponseMediator extends AbstractMediator {
 
         JSONObject mainObj = new JSONObject();
         try {
-            mainObj.put("RESULTSET", ja);
+            mainObj.put(Constants.HTTPRESPONSE.RESPONSEROOT, ja);
             jsonRes = mainObj.toString();
         } catch (JSONException e) {
             e.printStackTrace();

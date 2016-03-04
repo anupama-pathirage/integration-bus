@@ -19,6 +19,7 @@ package org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.protocol;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.ibus.mediation.cheetah.Constants;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.evaluator.Evaluator;
 import org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.OutboundDataSource;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -70,12 +71,12 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
 
         log.info("Received to RDBMSOutboundDataSource:");
 
-        Properties queryProperties = (Properties)carbonMessage.getProperty("QUERYPROPERTIES");
+        Properties queryProperties = (Properties)carbonMessage.getProperty(Constants.QUERYDATA.QUERYPROPERTIES);
         if(queryProperties != null){
             boolean bExecuteNonQuery = false;
-            String query = queryProperties.getProperty("QUERYSTATEMENT");
-            String queryParameters = queryProperties.getProperty("QUERYPARAMETERS");
-            String resultSetName = queryProperties.getProperty("RESULTSET");
+            String query = queryProperties.getProperty(Constants.QUERYDATA.QUERYSTATEMENT);
+            String queryParameters = queryProperties.getProperty(Constants.QUERYDATA.QUERYPARAMETERS);
+            String resultSetName = queryProperties.getProperty(Constants.QUERYDATA.RESULTSET);
 
             if(queryParameters != null) {
                 query = generateQuery(query, queryParameters);//TODO::Handle in a proper way - need to differentiate select from insert/update/delete queries.

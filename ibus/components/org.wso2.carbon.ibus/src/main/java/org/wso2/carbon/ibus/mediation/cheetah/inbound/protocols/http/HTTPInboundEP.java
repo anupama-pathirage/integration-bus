@@ -92,11 +92,7 @@ public class HTTPInboundEP extends InboundEndpoint {
         if (log.isDebugEnabled()) {
             log.debug("HTTP Endpoint : " + getName() + " received the message");
         }
-        try {
-            Evaluator.setRequestJSONContent(cMsg);
-        } catch (JSONException e) {
-            log.error("Error in setting JSON content: ",e);
-        }
+        //Evaluator.setRequestJSONContent(cMsg);
         super.receive(cMsg, callback);
         return true;
     }
