@@ -50,16 +50,10 @@ public class Evaluator {
         return false;
     }
 
-    public static String getRequestContent(CarbonMessage carbonMessage,String sContentPath) throws JSONException {
+    public static String getRequestContent(JSONObject jsonObject,String sContentPath) throws JSONException {
         String sValue = null;
-        String sKey = "EMP";
-        int index = 0;
-        String sKeyVal = "NAME";
-        JSONObject obj = (JSONObject)carbonMessage.getProperty(Constants.HTTPREQUEST.REQUESTBODY);
-        if(obj != null) {
-            JSONArray root = obj.getJSONArray(sKey);
-            JSONObject item = root.getJSONObject(index);
-            sValue = item.getString(sKeyVal);
+        if(jsonObject != null) {
+            sValue = jsonObject.getString(sContentPath);
         }
         return sValue;
     }
@@ -69,14 +63,12 @@ public class Evaluator {
             ByteBuffer buff = carbonMessage.getMessageBody();
             //if(buff.hasArray()){ //TODO::Check is the received one is the last buffer
             CharBuffer charBuffer = StandardCharsets.US_ASCII.decode(buff);
-            String text = charBuffer.toString();
-            JSONObject jsonobj = new JSONObject(text);
-            carbonMessage.setProperty(Constants.HTTPREQUEST.REQUESTBODY,jsonobj);
-           // }
+            String bodyContent = charBuffer.toString();
+            if (!"".equals(bodyContent)) {
+                JSONObject jsonobj = new JSONObject(bodyContent);
+                carbonMessage.setProperty(Constants.HTTPREQUEST.REQUESTBODY,jsonobj);
+            }
         }
-
-
     }
-
 
 }

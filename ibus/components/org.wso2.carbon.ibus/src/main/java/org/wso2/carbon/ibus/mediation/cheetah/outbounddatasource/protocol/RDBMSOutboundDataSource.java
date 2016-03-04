@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.protocol;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.Constants;
@@ -67,7 +69,7 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback)
             throws Exception {
-        String sVal = Evaluator.getRequestContent(carbonMessage,"test");
+//        String sVal = Evaluator.getRequestContent(carbonMessage,"test");
 
         log.info("Received to RDBMSOutboundDataSource:");
 
@@ -79,7 +81,7 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
             String resultSetName = queryProperties.getProperty(Constants.QUERYDATA.RESULTSET);
 
             if(queryParameters != null) {
-                query = generateQuery(query, queryParameters);//TODO::Handle in a proper way - need to differentiate select from insert/update/delete queries.
+                query = generateQuery(carbonMessage,query, queryParameters);//TODO::Handle in a proper way - need to differentiate select from insert/update/delete queries.
                 bExecuteNonQuery = true;
             }
 
@@ -108,18 +110,20 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
         return false;
     }
 
-    public String generateQuery(String query,String queryParameters){
+    private String generateQuery(CarbonMessage carbonMessage, String query,String queryParameters)
+            throws JSONException {
         query.replace("'?'","?");
-
         String[] parameterArray = queryParameters.split(",");
-
+        JSONObject requestBody = (JSONObject)carbonMessage.getProperty(Constants.HTTPREQUEST.REQUESTBODY);
         for( int i = 0; i < parameterArray.length; i++)
         {
             String parameter = parameterArray[i];
-            query= query.replaceFirst("\\?",parameter);
+            String parsedParameter = "";
+            if (parameter.startsWith("$input")) {
+                parsedParameter = Evaluator.getRequestContent(requestBody, parameter.split("\\.")[1]);
+            }
+            query= query.replaceFirst("\\?", "\"" + parsedParameter + "\"");
         }
-
-
         return query;
     }
 
