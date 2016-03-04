@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.ibus.mediation.cheetah.inbound.protocols.http;
 
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.evaluator.Evaluator;

@@ -21,7 +21,7 @@ import org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.OutboundDataSou
 import org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.protocol.RDBMSOutboundDataSource;
 
 /**
- * Created by anupama on 3/1/16.
+ * Factory class to generate outbound dataSource
  */
 public class OutboundDataSourceFactory {
 

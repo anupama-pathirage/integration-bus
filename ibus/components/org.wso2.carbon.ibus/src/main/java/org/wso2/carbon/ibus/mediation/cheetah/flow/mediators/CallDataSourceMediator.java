@@ -32,7 +32,7 @@ import java.nio.charset.Charset;
 import java.util.Properties;
 
 /**
- * Created by anupama on 3/1/16.
+ * Send a Message out from Pipeline to an Outbound Datasource
  */
 public class CallDataSourceMediator extends AbstractMediator {
 

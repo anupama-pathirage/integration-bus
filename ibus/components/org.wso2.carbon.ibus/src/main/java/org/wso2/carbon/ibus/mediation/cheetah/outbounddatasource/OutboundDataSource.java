@@ -22,7 +22,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Created by anupama on 3/1/16.
+ * A class that represents dataSource details
  */
 public class OutboundDataSource extends AbstractMediator {
 

@@ -19,7 +19,7 @@
 package org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.outbounddatasource;
 
 /**
- * Created by anupama on 3/1/16.
+ * enum to define outbound dataSource
  */
 public enum OutboundDataSourceType {
     rdbms, csv, cassandra, mongodb
