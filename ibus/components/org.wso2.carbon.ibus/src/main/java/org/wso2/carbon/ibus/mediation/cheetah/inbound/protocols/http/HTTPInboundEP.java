@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.ibus.mediation.cheetah.inbound.protocols.http;
 
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.evaluator.Evaluator;
@@ -91,7 +92,11 @@ public class HTTPInboundEP extends InboundEndpoint {
         if (log.isDebugEnabled()) {
             log.debug("HTTP Endpoint : " + getName() + " received the message");
         }
-        Evaluator.setRequestJSONContent(cMsg);
+        try {
+            Evaluator.setRequestJSONContent(cMsg);
+        } catch (JSONException e) {
+            log.error("Error in setting JSON content: ",e);
+        }
         super.receive(cMsg, callback);
         return true;
     }

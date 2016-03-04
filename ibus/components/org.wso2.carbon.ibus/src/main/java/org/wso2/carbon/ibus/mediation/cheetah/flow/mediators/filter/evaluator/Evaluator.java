@@ -20,6 +20,7 @@ package org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.evaluator;
 
 import jdk.nashorn.internal.parser.JSONParser;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Condition;
@@ -48,7 +49,7 @@ public class Evaluator {
         return false;
     }
 
-    public static String getRequestContent(CarbonMessage carbonMessage,String sContentPath){
+    public static String getRequestContent(CarbonMessage carbonMessage,String sContentPath) throws JSONException {
         String sValue = null;
         String sKey = "EMP";
         int index = 0;
@@ -62,7 +63,7 @@ public class Evaluator {
         return sValue;
     }
 
-    public static void setRequestJSONContent(CarbonMessage carbonMessage){
+    public static void setRequestJSONContent(CarbonMessage carbonMessage) throws JSONException {
         if(!carbonMessage.isEmpty()) {
             ByteBuffer buff = carbonMessage.getMessageBody();
             //if(buff.hasArray()){ //TODO::Check is the received one is the last buffer

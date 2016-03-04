@@ -34,7 +34,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 /**
- * Created by anupama on 3/2/16.
+ * GenerateResponseMediator responsible for generating the response from outbound dataSource
  */
 public class GenerateResponseMediator extends AbstractMediator {
     private static final Logger log = LoggerFactory.getLogger(GenerateResponseMediator.class);

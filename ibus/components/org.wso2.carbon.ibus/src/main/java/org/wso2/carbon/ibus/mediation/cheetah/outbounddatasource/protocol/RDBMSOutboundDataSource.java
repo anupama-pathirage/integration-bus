@@ -31,7 +31,7 @@ import java.sql.*;
 import java.util.Properties;
 
 /**
- * Created by anupama on 3/1/16.
+ * RDBMS Type DataSource
  */
 public class RDBMSOutboundDataSource extends OutboundDataSource {
 
