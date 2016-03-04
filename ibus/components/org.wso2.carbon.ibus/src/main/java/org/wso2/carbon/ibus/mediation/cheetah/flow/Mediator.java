@@ -21,6 +21,8 @@ package org.wso2.carbon.ibus.mediation.cheetah.flow;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.util.Properties;
+
 
 /**
  * Interface for Mediators
@@ -77,4 +79,19 @@ public interface Mediator {
      * @param configs configuration parameter
      */
     public void setConfigs(String configs);
+
+    /**
+     * Set Additional properties for the mediator
+     *
+     * @param properties Additional properties passed to the mediator
+     */
+    public void setProperties(Properties properties);
+
+    /**
+     * Set Additional properties for the mediator
+     *
+     * @param key key value of a specific property
+     * @param value value of a specific property
+     */
+    public void addProperty(String key, String value);
 }

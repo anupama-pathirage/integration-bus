@@ -21,6 +21,7 @@ package org.wso2.carbon.ibus.mediation.cheetah.config;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.Pipeline;
 import org.wso2.carbon.ibus.mediation.cheetah.inbound.InboundEndpoint;
 import org.wso2.carbon.ibus.mediation.cheetah.outbound.OutboundEndpoint;
+import org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.OutboundDataSource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,8 @@ public class ESBConfigHolder {
     private Map<String, Pipeline> pipelines = new HashMap<>();
 
     private Map<String, OutboundEndpoint> outboundEndpoints = new HashMap<>();
+
+    private Map<String, OutboundDataSource> outboundDataSources = new HashMap<>();
 
 
     public ESBConfigHolder(String name) {
@@ -82,5 +85,17 @@ public class ESBConfigHolder {
 
     public void addOutboundEndpoint(OutboundEndpoint outboundEndpoint) {
         outboundEndpoints.put(outboundEndpoint.getName(), outboundEndpoint);
+    }
+
+    public Map<String, OutboundDataSource> getOutboundDataSources() {
+        return outboundDataSources;
+    }
+
+    public OutboundDataSource getOutboundDataSource(String name) {
+        return outboundDataSources.get(name);
+    }
+
+    public void addOutboundDataSource(OutboundDataSource outboundDataSource) {
+        outboundDataSources.put(outboundDataSource.getName(), outboundDataSource);
     }
 }

@@ -25,10 +25,14 @@ import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.flow.MediatorF
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.outbound.OutboundEndpointFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.outbound.OutboundEndpointType;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.StringParserUtil;
+import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.outbounddatasource.OutboundDataSourceFactory;
+import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.outbounddatasource.OutboundDataSourceType;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.wuml.generated.WUMLBaseListener;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.wuml.generated.WUMLParser;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.Mediator;
+import org.wso2.carbon.ibus.mediation.cheetah.flow.MediatorCollection;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.Pipeline;
+import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.CallDataSourceMediator;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Condition;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.FilterMediator;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Scope;
@@ -36,7 +40,9 @@ import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Source;
 import org.wso2.carbon.ibus.mediation.cheetah.inbound.InboundEndpoint;
 import org.wso2.carbon.ibus.mediation.cheetah.inbound.protocols.http.HTTPInboundEP;
 import org.wso2.carbon.ibus.mediation.cheetah.outbound.OutboundEndpoint;
+import org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.OutboundDataSource;
 
+import java.util.Properties;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
@@ -135,6 +141,20 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         integrationFlow.getEsbConfigHolder().addOutboundEndpoint(outboundEndpoint);
         super.exitOutboundEndpointDefStatement(ctx);
     }
+
+    @Override
+    public void exitOutboundDataSourceDefStatement(WUMLParser.OutboundDataSourceDefStatementContext ctx) {
+        String protocolName = StringParserUtil.getValueWithinDoubleQuotes(ctx.outboundDataSourceDef().
+                PROTOCOLDEF().getText());
+        String uri = StringParserUtil.getValueWithinDoubleQuotes(ctx.outboundDataSourceDef().HOSTDEF().getText());
+        String userName = StringParserUtil.getValueWithinDoubleQuotes(ctx.outboundDataSourceDef().USERNAMEDEF().getText());
+        String password = StringParserUtil.getValueWithinDoubleQuotes(ctx.outboundDataSourceDef().PASSWORDDEF().getText());
+        OutboundDataSource outboundDataSource = OutboundDataSourceFactory.getOutboundDataSource(OutboundDataSourceType.valueOf(protocolName),
+                ctx.OUTBOUNDDATASOURCENAME().getText(), uri, userName, password);
+        integrationFlow.getEsbConfigHolder().addOutboundDataSource(outboundDataSource);
+        super.exitOutboundDataSourceDefStatement(ctx);
+    }
+
 
     @Override
     public void exitMediatorDefStatement(WUMLParser.MediatorDefStatementContext ctx) {
@@ -265,6 +285,48 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         pipelineStack.pop();
         super.exitInvokeToSource(ctx);
     }
+
+    @Override
+    public void exitInvokeToTargetDataSource(WUMLParser.InvokeToTargetDataSourceContext ctx) {
+        String queryStatement = StringParserUtil.getValueWithinDoubleQuotes(ctx.queryDataDef().QUERYSTATEMENTDEF().getText());
+        String queryParameters = StringParserUtil.getValueWithinBrackets(ctx.queryDataDef().QUERYPARAMETERDEF().getText());
+        Properties queryProperties = new Properties();
+        if(queryStatement != null)
+            queryProperties.setProperty("QUERYSTATEMENT", queryStatement);
+
+        if(queryParameters != null)
+            queryProperties.setProperty("QUERYPARAMETERS", queryParameters);
+
+        Mediator mediator = MediatorFactory.getInstance().getMediator("calldatasource", ctx.OUTBOUNDDATASOURCENAME().getText(),queryProperties);
+        if(ifMultiThenBlockStarted) {
+            filterMediatorStack.peek().addThenMediator(mediator);
+
+        } else if(ifElseBlockStarted) {
+            filterMediatorStack.peek().addOtherwiseMediator(mediator);
+
+        } else {
+            integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
+        }
+        pipelineStack.pop();
+        super.exitInvokeToTargetDataSource(ctx);
+    }
+
+    @Override
+    public void exitInvokeFromTargetDataSource(WUMLParser.InvokeFromTargetDataSourceContext ctx) {
+        String pipelineName = ctx.PIPELINENAME().getText();
+        pipelineStack.push(pipelineName);
+
+        //
+        String sText = StringParserUtil.getValueWithinDoubleQuotes(ctx.queryResponseDef().getText());
+        Pipeline pipelineCurr = integrationFlow.getEsbConfigHolder().getPipeline(pipelineName);
+        MediatorCollection pipelineMediators = pipelineCurr.getMediators();
+        Mediator prevMediator = pipelineMediators.getLastMediator();
+        if(prevMediator != null && prevMediator instanceof CallDataSourceMediator)
+            prevMediator.addProperty("RESULTSET",sText);
+        //
+        super.exitInvokeFromTargetDataSource(ctx);
+    }
+
 
     @Override
     public void exitParallelStatement(WUMLParser.ParallelStatementContext ctx) {

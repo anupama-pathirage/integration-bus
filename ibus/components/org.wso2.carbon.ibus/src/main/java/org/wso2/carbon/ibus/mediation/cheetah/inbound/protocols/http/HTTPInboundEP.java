@@ -19,6 +19,7 @@ package org.wso2.carbon.ibus.mediation.cheetah.inbound.protocols.http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.evaluator.Evaluator;
 import org.wso2.carbon.ibus.mediation.cheetah.inbound.InboundEndpoint;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -90,6 +91,7 @@ public class HTTPInboundEP extends InboundEndpoint {
         if (log.isDebugEnabled()) {
             log.debug("HTTP Endpoint : " + getName() + " received the message");
         }
+        Evaluator.setRequestJSONContent(cMsg);
         super.receive(cMsg, callback);
         return true;
     }

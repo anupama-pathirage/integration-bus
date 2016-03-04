@@ -23,6 +23,7 @@ import org.wso2.carbon.ibus.mediation.cheetah.flow.Pipeline;
 import org.wso2.carbon.ibus.mediation.cheetah.inbound.InboundEndpoint;
 import org.wso2.carbon.ibus.mediation.cheetah.inbound.manager.InboundEndpointManager;
 import org.wso2.carbon.ibus.mediation.cheetah.outbound.OutboundEndpoint;
+import org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.OutboundDataSource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ public class CheetahConfigRegistry {
     private Map<String, Pipeline> pipelineMap = new HashMap<>();
 
     private Map<String, OutboundEndpoint> outBoundEndpointMap = new HashMap<>();
+    private Map<String, OutboundDataSource> outBoundDataSourceMap = new HashMap<>();
 
     private List<ConfigRegistryObserver> observers = new ArrayList<>();
 
@@ -88,6 +90,11 @@ public class CheetahConfigRegistry {
             registerOutboundEndpoint(outboundEndpoint);
         }
 
+        //For Outbound DataSources
+        for (OutboundDataSource outboundDataSource: config.getOutboundDataSources().values()) {
+            registerOutboundDataSource(outboundDataSource);
+        }
+
 
     }
 
@@ -106,6 +113,11 @@ public class CheetahConfigRegistry {
         //For Outbound Endpoints
         for (OutboundEndpoint outboundEndpoint : esbConfigHolder.getOutboundEndpoints().values()) {
             unregisterOutboundEndpoint(outboundEndpoint);
+        }
+
+        //For Outbound DataSources
+        for (OutboundDataSource outboundDataSource : esbConfigHolder.getOutboundDataSources().values()) {
+            unregisterOutboundDataSource(outboundDataSource);
         }
 
     }
@@ -168,5 +180,16 @@ public class CheetahConfigRegistry {
         outBoundEndpointMap.remove(outboundEndpoint);
     }
 
+    public OutboundDataSource getOutboundDataSource(String key) {
+        return outBoundDataSourceMap.get(key);
+    }
+
+    public void registerOutboundDataSource(OutboundDataSource outboundDataSource) {
+        outBoundDataSourceMap.put(outboundDataSource.getName(), outboundDataSource);
+    }
+
+    public void unregisterOutboundDataSource(OutboundDataSource outboundDataSource) {
+        outBoundDataSourceMap.remove(outboundDataSource);
+    }
 
 }

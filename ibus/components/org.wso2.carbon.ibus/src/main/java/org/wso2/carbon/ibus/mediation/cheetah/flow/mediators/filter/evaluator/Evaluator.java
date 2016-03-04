@@ -18,10 +18,17 @@
 
 package org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.evaluator;
 
+import jdk.nashorn.internal.parser.JSONParser;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Condition;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Source;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -39,6 +46,34 @@ public class Evaluator {
             return pattern.matcher(map.get(source.getKey())).matches();
         }
         return false;
+    }
+
+    public static String getRequestContent(CarbonMessage carbonMessage,String sContentPath){
+        String sValue = null;
+        String sKey = "EMP";
+        int index = 0;
+        String sKeyVal = "NAME";
+        JSONObject obj = (JSONObject)carbonMessage.getProperty("REQUEST");
+        if(obj != null) {
+            JSONArray root = obj.getJSONArray(sKey);
+            JSONObject item = root.getJSONObject(index);
+            sValue = item.getString(sKeyVal);
+        }
+        return sValue;
+    }
+
+    public static void setRequestJSONContent(CarbonMessage carbonMessage){
+        if(!carbonMessage.isEmpty()) {
+            ByteBuffer buff = carbonMessage.getMessageBody();
+            //if(buff.hasArray()){ //TODO::Check is the received one is the last buffer
+            CharBuffer charBuffer = StandardCharsets.US_ASCII.decode(buff);
+            String text = charBuffer.toString();
+            JSONObject jsonobj = new JSONObject(text);
+            carbonMessage.setProperty("REQUEST",jsonobj);
+           // }
+        }
+
+
     }
 
 

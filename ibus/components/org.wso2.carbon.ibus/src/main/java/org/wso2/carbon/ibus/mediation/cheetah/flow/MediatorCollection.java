@@ -43,6 +43,15 @@ public class MediatorCollection {
     }
 
     /**
+     * Get the first mediator in the collection
+     *
+     * @return first mediator of the collection
+     */
+    public Mediator getLastMediator() {
+        return mediators.get(mediators.size()-1);
+    }
+
+    /**
      * Get all the mediators
      *
      * @return all the mediators

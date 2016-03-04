@@ -16,15 +16,11 @@
  * under the License.
  */
 
-package org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter;
+package org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.outbounddatasource;
 
 /**
- * An Enum class that contains Filtering Scopes
+ * Created by anupama on 3/1/16.
  */
-public enum Scope {
-
-    HEADER,
-    MESSAGEBODY,
-    MessageHeader
-
+public enum OutboundDataSourceType {
+    rdbms, csv, cassandra, mongodb
 }

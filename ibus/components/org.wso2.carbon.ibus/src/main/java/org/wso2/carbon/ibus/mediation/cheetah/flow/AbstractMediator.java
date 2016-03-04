@@ -21,6 +21,8 @@ package org.wso2.carbon.ibus.mediation.cheetah.flow;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.util.Properties;
+
 /**
  * Base class for all the mediators. All the mediators must be extended from this base class
  */
@@ -71,6 +73,25 @@ public abstract class AbstractMediator implements Mediator {
      */
     public void setConfigs(String configs) {
         //Do nothing
+    }
+
+    /**
+     * Set Additional properties for the mediator
+     *
+     * @param properties Additional properties passed to the mediator
+     */
+    public void setProperties(Properties properties){
+
+    }
+
+    /**
+     * Set Additional properties for the mediator
+     *
+     * @param key key value of a specific property
+     * @param value value of a specific property
+     */
+    public void addProperty(String key, String value){
+
     }
 
 }

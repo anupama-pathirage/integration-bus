@@ -21,16 +21,13 @@ package org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.flow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.Mediator;
-import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.CallMediator;
-import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.EnrichMediator;
-import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.LogMediator;
-import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.RespondMediator;
-import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.TransformMediator;
+import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.*;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.FilterMediator;
 import sun.misc.Service;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Factory class to generate mediators according to the provided type
@@ -58,7 +55,9 @@ public class MediatorFactory {
             RespondMediator.class,
             LogMediator.class,
             EnrichMediator.class,
-            TransformMediator.class
+            TransformMediator.class,
+            CallDataSourceMediator.class,
+            GenerateResponseMediator.class
     };
 
 
@@ -76,6 +75,27 @@ public class MediatorFactory {
             try {
                 mediator = (Mediator) c.newInstance();
                 mediator.setConfigs(configs);
+            } catch (Exception e) {
+                log.error("Error while instantiation of " + mediatorType);
+            }
+
+        } else {
+            log.error("Mediator implementation not found for " + mediatorType);
+        }
+
+        return mediator;
+    }
+
+    public Mediator getMediator(String mediatorType, String configs,Properties parametes) {
+        Mediator mediator = null;
+
+        Class c = mediatorClassMap.get(mediatorType);
+
+        if (c != null) {
+            try {
+                mediator = (Mediator) c.newInstance();
+                mediator.setConfigs(configs);
+                mediator.setProperties(parametes);
             } catch (Exception e) {
                 log.error("Error while instantiation of " + mediatorType);
             }

@@ -111,6 +111,11 @@
                 <artifactId>org.wso2.carbon.messaging</artifactId>
                 <version>${carbon.messaging.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -224,6 +229,9 @@
 
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <plugin.version.antlr>4.5.1</plugin.version.antlr>
+
+        <json.version>20160212.0.0</json.version>
+        <json.package.import.version.range>[20160211.0.0, 20160213.0.0)</json.package.import.version.range>
     </properties>
 
     <modules>

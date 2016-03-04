@@ -42,6 +42,10 @@ public class Source {
             key = this.value.substring(this.value.indexOf(".") + 1);
             scope = Scope.HEADER;
         }
+        if (this.value.contains("$body")) {
+            key = this.value.substring(this.value.indexOf(".") + 1);
+            scope = Scope.MESSAGEBODY;
+        }
 
     }
 

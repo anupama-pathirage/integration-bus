@@ -59,6 +59,10 @@
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -111,6 +115,10 @@
                                 <bundle>
                                     <symbolicName>antlr4-runtime</symbolicName>
                                     <version>${antlr4.runtime.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>json</symbolicName>
+                                    <version>${json.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
