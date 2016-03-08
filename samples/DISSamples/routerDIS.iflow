@@ -12,19 +12,19 @@ inboundendpointListener -> pipeline1 : "request"
 
 group Transaction
 
-	log("Within Transaction")
-	pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($input.Name,$input.CityID))
+        log("Within Transaction")
+        pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($input.Name,$input.CityID))
         outbounddatasource1 -> pipeline1 : resultset("rs2")
-        
+
         log("Starting second")
 
-	pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($input.City,$input.Country))
-	outbounddatasource1 -> pipeline1 : resultset("rs0")
+        pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($input.City,$input.Country))
+        outbounddatasource1 -> pipeline1 : resultset("rs0")
 
-	log("Transaction End")
+        log("Transaction End")
 
 else
-	log("Error Sequence")
+        log("Error Sequence")
 
 end
 
