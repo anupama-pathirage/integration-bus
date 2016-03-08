@@ -27,9 +27,6 @@ import org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.OutboundDataSou
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Properties;
 
@@ -74,6 +71,15 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
         log.info("Received to RDBMSOutboundDataSource:");
 
         Properties queryProperties = (Properties)carbonMessage.getProperty(Constants.QUERYDATA.QUERYPROPERTIES);
+        boolean bBeginTrans = (boolean)carbonMessage.getProperty(Constants.TRANSACTION.BEGINTRANS);
+        if(bBeginTrans) {
+            log.info("Begin Trans Received");
+            rdbmsConnection.setAutoCommit(false);
+            carbonMessage.setProperty(Constants.TRANSACTION.CONNECTIONS,rdbmsConnection);
+        }
+        else
+            log.info("No Begin Trans");
+
         if(queryProperties != null){
             boolean bExecuteNonQuery = false;
             String query = queryProperties.getProperty(Constants.QUERYDATA.QUERYSTATEMENT);
@@ -128,25 +134,19 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
     }
 
 
-    public ResultSet ExecuteQuery(String sql){
-        ResultSet rs = null;
-        try {
-            Statement stmt = rdbmsConnection.createStatement();
-            rs =stmt.executeQuery(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public ResultSet ExecuteQuery(String sql) throws SQLException{
+        Statement stmt = rdbmsConnection.createStatement();
+        ResultSet  rs =stmt.executeQuery(sql);
         return rs;
     }
 
-    public boolean ExecuteNonQuery(String sql){
-        boolean bSuccess =false;
-        try {
-            Statement stmt = rdbmsConnection.createStatement();
-            bSuccess =stmt.execute(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public boolean ExecuteNonQuery(String sql) throws SQLException{
+        Statement stmt = rdbmsConnection.createStatement();
+        boolean    bSuccess =stmt.execute(sql);
         return bSuccess;
+    }
+
+    public void setConnectionAutoCommit (boolean bCommitStatus)  throws SQLException{
+        rdbmsConnection.setAutoCommit(bCommitStatus);
     }
 }

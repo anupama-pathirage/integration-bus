@@ -40,4 +40,13 @@ public class Constants {
         public static final String RESPONSEROOT = "RESULTSET";
     }
 
+
+    public static final class TRANSACTION{
+        public static final String ERRORSEQ = "ERRORSEQ";
+        public static final String BEGINTRANS= "BEGINTRANS";
+        public static final String CONNECTIONS= "CONNECTIONS";
+        public static final String COMMIT= "COMMIT";
+        public static final String ROLLBACK= "ROLLBACK";
+    }
+
 }

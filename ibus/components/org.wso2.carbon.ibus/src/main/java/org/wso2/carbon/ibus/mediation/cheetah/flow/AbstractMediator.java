@@ -52,6 +52,9 @@ public abstract class AbstractMediator implements Mediator {
             throws Exception {
         if (hasNext()) {
             return nextMediator.receive(carbonMessage, carbonCallback);
+        }else if (carbonCallback instanceof FlowControllerCallback) {
+            //If no siblings handover message to the requester
+            carbonCallback.done(carbonMessage);
         }
         return false;
     }

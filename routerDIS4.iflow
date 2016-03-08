@@ -18,7 +18,7 @@ group Transaction
         
         log("Starting second")
 
-	pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($input.City,$input.Country))
+	pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Locations(City, Country) Values(?,?)"),queryparameter($input.City,$input.Country))
 	outbounddatasource1 -> pipeline1 : resultset("rs0")
 
 	log("Transaction End")

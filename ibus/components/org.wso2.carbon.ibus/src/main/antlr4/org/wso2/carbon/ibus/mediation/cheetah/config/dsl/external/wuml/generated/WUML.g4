@@ -146,11 +146,23 @@ ifElseBlock
     : (ELSE NEWLINE statementList)+ ;
 
 /* -> GROUP block rules */
-groupStatement
+/*groupStatement
     : GROUP WS IDENTIFIER NEWLINE
       NEWLINE? statementList
       END
-    ;
+    ;*/
+ groupStatement
+     : GROUP WS groupIdentifierStatement NEWLINE
+       NEWLINE groupMultiThenBlock
+       END
+     ;
+
+ groupMultiThenBlock
+     : statementList NEWLINE (groupElseBlock)? ;
+
+
+ groupElseBlock
+     : (ELSE NEWLINE statementList)+ ;
 
 /* -> LOOP block rules */
 loopStatement
@@ -166,6 +178,9 @@ conditionStatement
     : conditionDef;
 
 conditionDef: CONDITIONX LPAREN SOURCEDEF COMMA_SYMBOL PATTERNDEF RPAREN;
+
+groupIdentifierStatement
+    : IDENTIFIER;
 
 
 commentStatement
