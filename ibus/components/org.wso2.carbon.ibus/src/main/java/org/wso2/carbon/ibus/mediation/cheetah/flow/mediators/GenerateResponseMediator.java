@@ -149,7 +149,7 @@ public class GenerateResponseMediator extends AbstractMediator {
         return jsonRes;
     }
 
-    public String getXMLResponse(ResultSet rs){
+    public String getXMLResponse(ResultSet rs){ //TODO:Implement this
         String xmlRes = null;
         return xmlRes;
     }

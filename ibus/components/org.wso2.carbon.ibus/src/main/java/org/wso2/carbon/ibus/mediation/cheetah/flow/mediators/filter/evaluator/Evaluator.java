@@ -88,7 +88,7 @@ public class Evaluator {
         }
         return "";
     }
-    
+
     public static void setRequestJSONContent(CarbonMessage carbonMessage) throws JSONException {
         if(!carbonMessage.isEmpty()) {
             ByteBuffer buff = carbonMessage.getMessageBody();

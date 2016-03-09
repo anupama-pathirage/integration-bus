@@ -82,10 +82,7 @@ public class CallDataSourceMediator extends AbstractMediator {
                 return false;
             }
         }
-
-        //CarbonCallback callback = new FlowControllerCallback(carbonCallback, this);
-
-        //dataSource.receive(carbonMessage, callback);
+        ;
         carbonMessage.setProperty(Constants.QUERYDATA.QUERYPROPERTIES,queryProperties);
 
         try {
