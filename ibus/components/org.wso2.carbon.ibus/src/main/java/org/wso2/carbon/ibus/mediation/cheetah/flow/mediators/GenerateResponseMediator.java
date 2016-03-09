@@ -81,7 +81,7 @@ public class GenerateResponseMediator extends AbstractMediator {
 
 
 
-        defCmsg.setProperty("PORT","8080");
+        defCmsg.setProperty("PORT","8080"); //TODO::Remove hard coded values
         defCmsg.setProperty("DIRECTION","DIRECTION-RESPONSE");
         defCmsg.setProperty("HOST","localhost");
         defCmsg.setProperty("HTTP_STATUS_CODE",200);
@@ -90,7 +90,7 @@ public class GenerateResponseMediator extends AbstractMediator {
         Charset charset = Charset.forName("UTF-8");
         if(responseType == ResponseType.json){
             defCmsg.setHeader("Content-Type","application/json");
-            String msg = getJSONResponse((ResultSet)carbonMessage.getProperty("rs1"));
+            String msg = getJSONResponse((ResultSet)carbonMessage.getProperty("RS1")); //TODO::Remove hard coded values
             ByteBuffer bf = ByteBuffer.wrap(msg.getBytes(charset));
             defCmsg.addMessageBody(bf);
         }

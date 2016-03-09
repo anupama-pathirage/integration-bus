@@ -53,37 +53,42 @@ public class Evaluator {
         return false;
     }
 
-    public static String getRequestContent(JSONObject jsonObject,String sContentPath) throws JSONException {
-        String sValue = null;
-        if(jsonObject != null) {
-            sValue = jsonObject.getString(sContentPath);
+    public static Object getRequestContent(CarbonMessage carbonMessage,String sContentPath) throws JSONException, SQLException {
+        Object requestContent;
+        if (sContentPath.startsWith("$input")) {
+            requestContent = carbonMessage.getProperty(Constants.HTTPREQUEST.REQUESTBODY);
+        } else {
+            requestContent = carbonMessage.getProperty(sContentPath.split("\\.")[0].
+                    substring(1).toUpperCase());
         }
-        return sValue;
-    }
+        if(requestContent == null) {
+            throw new JSONException("No parameters in the request");
+        } else {
+            String sRequiredPara = sContentPath.split("\\.")[1];
 
-    public static String getResultSetContent(CarbonMessage cMsg,String sResultSetName,String sResultSetValue) throws SQLException {
-        String sValue = "";
-        Object objResult = cMsg.getProperty(sResultSetName);
-        if(objResult instanceof Statement){
-            Statement stmt = (Statement)objResult;
-            if(sResultSetValue.equals("id")){
-                ResultSet rs = stmt.getGeneratedKeys();
-                if (rs.next()){
-                    sValue=rs.getString(1);
+            if(requestContent instanceof  JSONObject) //for loop content
+                return ((JSONObject) requestContent).get(sRequiredPara);
+            else if(requestContent instanceof Statement){//for result set of dml query
+                Statement stmt = (Statement)requestContent;
+                if(sRequiredPara.equals("id")){
+                    ResultSet rs = stmt.getGeneratedKeys();
+                    if (rs.next()){
+                        return rs.getString(1);
+                    }
+                }else if(sRequiredPara.equals("count")){
+                    return Integer.toString(stmt.getUpdateCount());
                 }
-            }else if(sResultSetValue.equals("count")){
-                sValue = Integer.toString(stmt.getUpdateCount());
+            }
+            else if(requestContent instanceof ResultSet){ //for resutlset of select query
+                ResultSet rs = (ResultSet)requestContent;
+                if (rs.next()) {
+                    return rs.getString(sRequiredPara);
+                }
             }
         }
-        else if(objResult instanceof ResultSet){
-            ResultSet rs = (ResultSet)objResult;
-            if (rs.next()) {
-                sValue = rs.getString(sResultSetValue);
-            }
-        }
-        return sValue;
+        return "";
     }
-
+    
     public static void setRequestJSONContent(CarbonMessage carbonMessage) throws JSONException {
         if(!carbonMessage.isEmpty()) {
             ByteBuffer buff = carbonMessage.getMessageBody();
