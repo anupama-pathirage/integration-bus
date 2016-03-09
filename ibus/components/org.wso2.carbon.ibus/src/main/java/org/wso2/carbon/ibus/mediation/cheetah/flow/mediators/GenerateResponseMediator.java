@@ -113,8 +113,6 @@ public class GenerateResponseMediator extends AbstractMediator {
 
         JSONArray ja = new JSONArray();
 
-
-
         try {
             ResultSetMetaData rsmd = rs.getMetaData();
 

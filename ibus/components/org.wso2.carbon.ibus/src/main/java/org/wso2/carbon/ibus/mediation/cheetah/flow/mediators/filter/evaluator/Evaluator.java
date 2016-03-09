@@ -70,12 +70,12 @@ public class Evaluator {
                 return ((JSONObject) requestContent).get(sRequiredPara);
             else if(requestContent instanceof Statement){//for result set of dml query
                 Statement stmt = (Statement)requestContent;
-                if(sRequiredPara.equals("id")){
+                if(sRequiredPara.equalsIgnoreCase(Constants.TRANSACTION.GENERATEDID)){
                     ResultSet rs = stmt.getGeneratedKeys();
                     if (rs.next()){
                         return rs.getString(1);
                     }
-                }else if(sRequiredPara.equals("count")){
+                }else if(sRequiredPara.equals(Constants.TRANSACTION.ROWCOUNT)){
                     return Integer.toString(stmt.getUpdateCount());
                 }
             }

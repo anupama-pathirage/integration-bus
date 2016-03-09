@@ -19,7 +19,7 @@ group Transaction
 	
 	log("Starting second")
 
-	pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($input.Name,$rs0.id))
+	pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($input.Name,$rs0.generatedid))
         outbounddatasource1 -> pipeline1 : resultset("rs2")
         
 	log("Transaction End")

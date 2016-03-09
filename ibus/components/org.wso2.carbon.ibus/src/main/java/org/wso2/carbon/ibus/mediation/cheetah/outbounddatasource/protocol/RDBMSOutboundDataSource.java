@@ -18,7 +18,6 @@
 package org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.protocol;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.Constants;
@@ -55,7 +54,7 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
 
     private void createConnection(String uri,String username, String password){
         try{
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.jdbc.Driver"); //TODO:Add support for any driver
             rdbmsConnection = DriverManager.getConnection(uri, username, password);
         }catch (Exception e){
             String msg = "Error while creating RDBMS Connection";

@@ -47,6 +47,8 @@ public class Constants {
         public static final String CONNECTIONS= "CONNECTIONS";
         public static final String COMMIT= "COMMIT";
         public static final String ROLLBACK= "ROLLBACK";
+        public static final String GENERATEDID = "GENERATEDID";
+        public static final String ROWCOUNT = "ROWCOUNT";
     }
 
 }
