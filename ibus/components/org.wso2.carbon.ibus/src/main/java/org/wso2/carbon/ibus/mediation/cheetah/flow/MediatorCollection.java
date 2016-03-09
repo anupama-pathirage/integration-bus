@@ -18,8 +18,12 @@
 
 package org.wso2.carbon.ibus.mediation.cheetah.flow;
 
+import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.CallDataSourceMediator;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
 
 /**
  * Place Holder for chain of mediators
@@ -71,5 +75,21 @@ public class MediatorCollection {
             mediators.get(lastIndex).setNext(mediator);
         }
         mediators.add(mediator);
+    }
+
+    public Mediator findPrevCallMediator(){
+        Mediator med = null;
+        ListIterator li = mediators.listIterator(mediators.size());
+
+        while(li.hasPrevious()) {
+           Object mediator= li.previous();
+            if(mediator instanceof CallDataSourceMediator){
+                med = (Mediator)mediator;
+                break;
+            }
+
+        }
+
+        return med;
     }
 }

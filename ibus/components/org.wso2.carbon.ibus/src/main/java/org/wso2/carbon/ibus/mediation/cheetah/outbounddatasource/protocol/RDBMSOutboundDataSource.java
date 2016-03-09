@@ -96,7 +96,9 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
 
             if(rdbmsConnection !=null){
                 if(bExecuteNonQuery){
-                    ExecuteNonQuery(query);
+                    Statement stmt = ExecuteNonQuery(query);
+                    if(stmt != null)
+                        carbonMessage.setProperty(resultSetName,stmt);
                 }
                 else{
                     ResultSet rs = ExecuteQuery(query);
@@ -117,7 +119,7 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
     }
 
     private String generateQuery(CarbonMessage carbonMessage, String query,String queryParameters)
-            throws JSONException {
+            throws JSONException, SQLException {
         query.replace("'?'","?");
         String[] parameterArray = queryParameters.split(",");
         JSONObject requestBody = (JSONObject)carbonMessage.getProperty(Constants.HTTPREQUEST.REQUESTBODY);
@@ -127,6 +129,13 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
             String parsedParameter = "";
             if (parameter.startsWith("$input")) {
                 parsedParameter = Evaluator.getRequestContent(requestBody, parameter.split("\\.")[1]);
+            }
+            else if(parameter.startsWith("$")){
+                String sResultSetName = parameter.split("\\.")[0];
+                sResultSetName = sResultSetName.substring(1);
+                String sResultSetValue = parameter.split("\\.")[1];
+
+                parsedParameter = Evaluator.getResultSetContent(carbonMessage,sResultSetName,sResultSetValue);
             }
             query= query.replaceFirst("\\?", "\"" + parsedParameter + "\"");
         }
@@ -140,10 +149,10 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
         return rs;
     }
 
-    public boolean ExecuteNonQuery(String sql) throws SQLException{
+    public Statement ExecuteNonQuery(String sql) throws SQLException{
         Statement stmt = rdbmsConnection.createStatement();
-        boolean    bSuccess =stmt.execute(sql);
-        return bSuccess;
+        boolean    bSuccess =stmt.execute(sql, Statement.RETURN_GENERATED_KEYS);
+        return stmt;
     }
 
     public void setConnectionAutoCommit (boolean bCommitStatus)  throws SQLException{

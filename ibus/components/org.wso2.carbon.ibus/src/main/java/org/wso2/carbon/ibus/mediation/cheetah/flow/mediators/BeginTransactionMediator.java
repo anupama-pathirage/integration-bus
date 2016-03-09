@@ -38,6 +38,10 @@ public class BeginTransactionMediator extends AbstractMediator implements FlowCo
         childThenMediatorList.addMediator(mediator);
     }
 
+    public MediatorCollection getThenMediatorList(){
+        return childThenMediatorList;
+    }
+
     public void addOtherwiseMediator(Mediator mediator) {
         childOtherwiseMediatorList.addMediator(mediator);
     }

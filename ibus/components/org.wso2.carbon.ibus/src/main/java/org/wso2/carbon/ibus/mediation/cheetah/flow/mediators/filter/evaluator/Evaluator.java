@@ -31,6 +31,9 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -54,6 +57,29 @@ public class Evaluator {
         String sValue = null;
         if(jsonObject != null) {
             sValue = jsonObject.getString(sContentPath);
+        }
+        return sValue;
+    }
+
+    public static String getResultSetContent(CarbonMessage cMsg,String sResultSetName,String sResultSetValue) throws SQLException {
+        String sValue = "";
+        Object objResult = cMsg.getProperty(sResultSetName);
+        if(objResult instanceof Statement){
+            Statement stmt = (Statement)objResult;
+            if(sResultSetValue.equals("id")){
+                ResultSet rs = stmt.getGeneratedKeys();
+                if (rs.next()){
+                    sValue=rs.getString(1);
+                }
+            }else if(sResultSetValue.equals("count")){
+                sValue = Integer.toString(stmt.getUpdateCount());
+            }
+        }
+        else if(objResult instanceof ResultSet){
+            ResultSet rs = (ResultSet)objResult;
+            if (rs.next()) {
+                sValue = rs.getString(sResultSetValue);
+            }
         }
         return sValue;
     }

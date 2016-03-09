@@ -363,7 +363,13 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         String sText = StringParserUtil.getValueWithinDoubleQuotes(ctx.queryResponseDef().getText());
         Pipeline pipelineCurr = integrationFlow.getEsbConfigHolder().getPipeline(pipelineName);
         MediatorCollection pipelineMediators = pipelineCurr.getMediators();
-        Mediator prevMediator = pipelineMediators.getLastMediator();
+        Mediator prevMediator = null;
+        if(transactionMultiThenBlockStarted) {
+            prevMediator= transactionMediatorStack.peek().getThenMediatorList().getLastMediator();
+        }else{
+            prevMediator = pipelineMediators.getLastMediator();
+        }
+
         if(prevMediator != null && prevMediator instanceof CallDataSourceMediator)
             prevMediator.addProperty(Constants.QUERYDATA.RESULTSET,sText);
         //
