@@ -18,6 +18,9 @@
 package org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.wuml;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.ibus.mediation.cheetah.Constants;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.WUMLConfigurationBuilder;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.inbound.InboundEndpointFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.inbound.InboundEndpointType;
@@ -32,10 +35,10 @@ import org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.wuml.generated
 import org.wso2.carbon.ibus.mediation.cheetah.flow.Mediator;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.MediatorCollection;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.Pipeline;
+import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.BeginTransactionMediator;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.CallDataSourceMediator;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Condition;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.FilterMediator;
-import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Scope;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.Source;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.iterator.IteratorMediator;
 import org.wso2.carbon.ibus.mediation.cheetah.inbound.InboundEndpoint;
@@ -51,14 +54,22 @@ import java.util.regex.Pattern;
  * Implementation class of the ANTLR generated listener class
  */
 public class WUMLBaseListenerImpl extends WUMLBaseListener {
+    private static final Logger log = LoggerFactory.getLogger(WUMLBaseListener.class);
 
     WUMLConfigurationBuilder.IntegrationFlow integrationFlow;
     Stack<String> pipelineStack = new Stack<String>();
+
+    //For Filter
     Stack<FilterMediator> filterMediatorStack = new Stack<FilterMediator>();
     Stack<IteratorMediator> iteratorMediatorStack = new Stack<IteratorMediator>();
     boolean ifMultiThenBlockStarted = false;
     boolean ifLoopBlockStarted = false;
     boolean ifElseBlockStarted = false;
+
+    //For Transaction
+    Stack<BeginTransactionMediator> transactionMediatorStack = new Stack<BeginTransactionMediator>();
+    boolean transactionMultiThenBlockStarted = false;
+    boolean transactionElseBlockStarted = false;
 
     public WUMLBaseListenerImpl() {
         this.integrationFlow = new WUMLConfigurationBuilder.IntegrationFlow("default");
@@ -194,7 +205,18 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         String mediatorName = StringParserUtil.getValueWithinDoubleQuotes(ctx.MEDIATORNAMESTRINGX().getText());
         String configurations = StringParserUtil.getValueWithinDoubleQuotes(ctx.CONFIGSDEF().getText());
         Mediator mediator = MediatorFactory.getInstance().getMediator(mediatorName, configurations);
-        if (ifMultiThenBlockStarted) {
+
+        if (transactionMultiThenBlockStarted) {
+            transactionMediatorStack.peek().addThenMediator(mediator);
+
+        } else if (transactionElseBlockStarted) {
+            transactionMediatorStack.peek().addOtherwiseMediator(mediator);
+
+        } else {
+            integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
+        }
+
+        /*if (ifMultiThenBlockStarted) {
             filterMediatorStack.peek().addThenMediator(mediator);
 
         } else if (ifElseBlockStarted) {
@@ -205,7 +227,7 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
 
         } else {
             integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
-        }
+        }*/
         super.exitProcessmessageDef(ctx);
     }
 
@@ -215,7 +237,18 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         String mediatorName = ctx.MEDIATORNAME().getText();
         String configurations = StringParserUtil.getValueWithinDoubleQuotes(ctx.ARGUMENTLISTDEF().getText());
         Mediator mediator = MediatorFactory.getInstance().getMediator(mediatorName, configurations);
-        if (ifMultiThenBlockStarted) {
+
+        if (transactionMultiThenBlockStarted) {
+            transactionMediatorStack.peek().addThenMediator(mediator);
+
+        } else if (transactionElseBlockStarted) {
+            transactionMediatorStack.peek().addOtherwiseMediator(mediator);
+
+        } else {
+            integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
+        }
+
+        /*if (ifMultiThenBlockStarted) {
             filterMediatorStack.peek().addThenMediator(mediator);
 
         } else if (ifElseBlockStarted) {
@@ -226,7 +259,7 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
 
         } else {
             integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
-        }
+        }*/
         super.exitMessageProcessingDef(ctx);
     }
 
@@ -301,13 +334,23 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         String queryParameters = StringParserUtil.getValueWithinBrackets(ctx.queryDataDef().QUERYPARAMETERDEF().getText());
         Properties queryProperties = new Properties();
         if(queryStatement != null)
-            queryProperties.setProperty("QUERYSTATEMENT", queryStatement);
+            queryProperties.setProperty(Constants.QUERYDATA.QUERYSTATEMENT, queryStatement);
 
         if(queryParameters != null)
-            queryProperties.setProperty("QUERYPARAMETERS", queryParameters);
+            queryProperties.setProperty(Constants.QUERYDATA.QUERYPARAMETERS, queryParameters);
 
         Mediator mediator = MediatorFactory.getInstance().getMediator("calldatasource", ctx.OUTBOUNDDATASOURCENAME().getText(),queryProperties);
-        if(ifMultiThenBlockStarted) {
+        if(transactionMultiThenBlockStarted){
+            transactionMediatorStack.peek().addThenMediator(mediator);
+        }
+        else if (transactionElseBlockStarted){
+            transactionMediatorStack.peek().addOtherwiseMediator(mediator);
+        }
+        else {
+            integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
+        }
+
+        /*if(ifMultiThenBlockStarted) {
             filterMediatorStack.peek().addThenMediator(mediator);
 
         } else if(ifElseBlockStarted) {
@@ -318,7 +361,7 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
 
         } else {
             integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
-        }
+        }*/
         pipelineStack.pop();
         super.exitInvokeToTargetDataSource(ctx);
     }
@@ -328,13 +371,13 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         String pipelineName = ctx.PIPELINENAME().getText();
         pipelineStack.push(pipelineName);
 
-        //
+        //TODO:
         String sText = StringParserUtil.getValueWithinDoubleQuotes(ctx.queryResponseDef().getText());
         Pipeline pipelineCurr = integrationFlow.getEsbConfigHolder().getPipeline(pipelineName);
         MediatorCollection pipelineMediators = pipelineCurr.getMediators();
         Mediator prevMediator = pipelineMediators.getLastMediator();
         if(prevMediator != null && prevMediator instanceof CallDataSourceMediator)
-            prevMediator.addProperty("RESULTSET",sText);
+            prevMediator.addProperty(Constants.QUERYDATA.RESULTSET,sText);
         //
         super.exitInvokeFromTargetDataSource(ctx);
     }
@@ -406,10 +449,10 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         super.exitIfElseBlock(ctx);
     }
 
-    @Override
-    public void exitGroupStatement(WUMLParser.GroupStatementContext ctx) {
+    //@Override
+    /*public void exitGroupStatement(WUMLParser.GroupStatementContext ctx) {
         super.exitGroupStatement(ctx);
-    }
+    }*/
 
     @Override
     public void exitLoopStatement(WUMLParser.LoopStatementContext ctx) {
@@ -441,6 +484,65 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(iteratorMediator);
         iteratorMediatorStack.push(iteratorMediator);
         super.exitExpressionStatement(ctx);
+    }
+
+
+
+    @Override
+    public void enterGroupStatement(WUMLParser.GroupStatementContext ctx) {
+        log.info("enterGroupStatement:");
+
+        BeginTransactionMediator beginTransactionMediator = new BeginTransactionMediator();
+        integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(beginTransactionMediator);
+        transactionMediatorStack.push(beginTransactionMediator);
+
+        super.enterGroupStatement(ctx);
+
+    }
+    @Override
+    public void exitGroupStatement(WUMLParser.GroupStatementContext ctx) {
+        log.info("exitGroupStatement:"+ctx.groupIdentifierStatement().getText());
+        transactionMultiThenBlockStarted = false;
+        transactionElseBlockStarted = false;
+        if (!transactionMediatorStack.isEmpty()) {
+            transactionMediatorStack.pop();
+        }
+        super.exitGroupStatement(ctx);
+    }
+
+    @Override
+    public void enterGroupMultiThenBlock(WUMLParser.GroupMultiThenBlockContext ctx) {
+        log.info(("enterGroupMultiThenBlock:"));
+        transactionMultiThenBlockStarted = true;
+        super.enterGroupMultiThenBlock(ctx);
+    }
+
+    @Override
+    public void exitGroupMultiThenBlock(WUMLParser.GroupMultiThenBlockContext ctx) {
+        log.info(("exitGroupMultiThenBlock:"));
+        transactionMultiThenBlockStarted = false;
+        Mediator mediator = MediatorFactory.getInstance().getMediator("endtransaction", Constants.TRANSACTION.COMMIT);
+        transactionMediatorStack.peek().addThenMediator(mediator);
+        super.exitGroupMultiThenBlock(ctx);
+    }
+
+    @Override
+    public void enterGroupElseBlock(WUMLParser.GroupElseBlockContext ctx) {
+        log.info(("enterGroupElseBlock:"));
+        transactionMultiThenBlockStarted = false;
+        transactionElseBlockStarted = true;
+        super.enterGroupElseBlock(ctx);
+    }
+
+    @Override
+    public void exitGroupElseBlock(WUMLParser.GroupElseBlockContext ctx) {
+        log.info(("exitGroupElseBlock:"));
+        transactionElseBlockStarted = false;
+
+        Mediator mediator = MediatorFactory.getInstance().getMediator("endtransaction", Constants.TRANSACTION.ROLLBACK);
+        transactionMediatorStack.peek().addOtherwiseMediator(mediator);
+
+        super.exitGroupElseBlock(ctx);
     }
 
 

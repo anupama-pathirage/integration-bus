@@ -25,10 +25,6 @@ import org.wso2.carbon.ibus.mediation.cheetah.flow.AbstractMediator;
 import org.wso2.carbon.ibus.mediation.cheetah.outbounddatasource.OutboundDataSource;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Properties;
 
 /**
@@ -91,7 +87,13 @@ public class CallDataSourceMediator extends AbstractMediator {
 
         //dataSource.receive(carbonMessage, callback);
         carbonMessage.setProperty(Constants.QUERYDATA.QUERYPROPERTIES,queryProperties);
-        dataSource.receive(carbonMessage,carbonCallback);
+
+        try {
+            dataSource.receive(carbonMessage, carbonCallback);
+        }catch (Exception e){
+            AbstractMediator absMediator = (AbstractMediator)carbonMessage.getProperty(Constants.TRANSACTION.ERRORSEQ);
+            setNext(absMediator);
+        }
 
 
         return next(carbonMessage, carbonCallback);

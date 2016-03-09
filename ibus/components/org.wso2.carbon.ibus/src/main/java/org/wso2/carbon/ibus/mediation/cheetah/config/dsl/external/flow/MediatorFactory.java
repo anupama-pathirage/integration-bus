@@ -59,7 +59,9 @@ public class MediatorFactory {
             EnrichMediator.class,
             TransformMediator.class,
             CallDataSourceMediator.class,
-            GenerateResponseMediator.class
+            GenerateResponseMediator.class,
+            BeginTransactionMediator.class,
+            EndTransationMediator.class
     };
 
 

@@ -1,0 +1,9 @@
+Request URL :http://localhost:8280/router
+Request Method : http post
+Request Body:
+{
+      "Name":"Anne",
+      "CityID":51,
+      "City":"New york",
+      "Country":"USA"
+}
