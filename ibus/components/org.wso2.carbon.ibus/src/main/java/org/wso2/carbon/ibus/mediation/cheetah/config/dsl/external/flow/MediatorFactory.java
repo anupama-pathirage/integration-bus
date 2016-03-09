@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.Mediator;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.*;
 import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.filter.FilterMediator;
+import org.wso2.carbon.ibus.mediation.cheetah.flow.mediators.iterator.IteratorMediator;
 import sun.misc.Service;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,6 +53,7 @@ public class MediatorFactory {
     private final Class[] mediators = {
             CallMediator.class,
             FilterMediator.class,
+            IteratorMediator.class,
             RespondMediator.class,
             LogMediator.class,
             EnrichMediator.class,

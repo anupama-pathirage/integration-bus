@@ -12,8 +12,12 @@ inboundendpointListener -> pipeline1 : "request"
 
 log("Before Filter")
 
-pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($input.Name,$input.CityID))
+loop $input.employees
+
+pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($employees.Name,$employees.CityID))
 outbounddatasource1 -> pipeline1 : resultset("rs2")
+
+end
 
 pipeline1 -> outbounddatasource1 : query(querystatement("SELECT * FROM Employee"),queryparameter())
 outbounddatasource1 -> pipeline1 : resultset("rs1")
