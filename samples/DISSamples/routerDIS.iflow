@@ -12,32 +12,24 @@ inboundendpointListener -> pipeline1 : "request"
 
 group Transaction
 
-        log("Within Transaction")
-        pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($input.Name,$input.CityID))
-        outbounddatasource1 -> pipeline1 : resultset("rs2")
-
-        log("Starting second")
-
-        pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($input.City,$input.Country))
+	log("Within Transaction")
+	
+	pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($input.City,$input.Country))
         outbounddatasource1 -> pipeline1 : resultset("rs0")
+	
+	log("Starting second")
 
-
-		loop $input.employees
-
-			pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($employees.Name,$employees.CityID))
-			outbounddatasource1 -> pipeline1 : resultset("rs2")
-			
-		end
-
-        log("Transaction End")
+	pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name, CityID) values(?,?)"),queryparameter($input.Name,$rs0.generatedid))
+        outbounddatasource1 -> pipeline1 : resultset("rs2")
+        
+	log("Transaction End")
 
 else
-        log("Error Sequence")
+	log("Error Sequence")
 
 end
 
 log("Before Filter")
-
 
 pipeline1 -> outbounddatasource1 : query(querystatement("SELECT * FROM Employee"),queryparameter())
 outbounddatasource1 -> pipeline1 : resultset("rs1")
