@@ -103,16 +103,11 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
                     if(rs!=null)
                         carbonMessage.setProperty(resultSetName,rs);
                 }
-
             }
             else{
                 log.info("Performing SQL Select Failed - No Connection");
             }
-
         }
-
-
-
         return false;
     }
 
@@ -120,14 +115,10 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
             throws JSONException {
         query.replace("'?'","?");
         String[] parameterArray = queryParameters.split(",");
-        JSONObject requestBody = (JSONObject)carbonMessage.getProperty(Constants.HTTPREQUEST.REQUESTBODY);
         for( int i = 0; i < parameterArray.length; i++)
         {
             String parameter = parameterArray[i];
-            String parsedParameter = "";
-            if (parameter.startsWith("$input")) {
-                parsedParameter = Evaluator.getRequestContent(requestBody, parameter.split("\\.")[1]);
-            }
+            Object parsedParameter = Evaluator.getRequestContent(carbonMessage, parameter);
             query= query.replaceFirst("\\?", "\"" + parsedParameter + "\"");
         }
         return query;

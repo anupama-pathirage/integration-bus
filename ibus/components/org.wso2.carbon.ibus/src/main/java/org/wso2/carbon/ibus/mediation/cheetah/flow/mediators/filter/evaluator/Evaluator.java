@@ -50,12 +50,19 @@ public class Evaluator {
         return false;
     }
 
-    public static String getRequestContent(JSONObject jsonObject,String sContentPath) throws JSONException {
-        String sValue = null;
-        if(jsonObject != null) {
-            sValue = jsonObject.getString(sContentPath);
+    public static Object getRequestContent(CarbonMessage carbonMessage,String sContentPath) throws JSONException {
+        Object requestContent;
+        if (sContentPath.startsWith("$input")) {
+            requestContent = carbonMessage.getProperty(Constants.HTTPREQUEST.REQUESTBODY);
+        } else {
+            requestContent = carbonMessage.getProperty(sContentPath.split("\\.")[0].
+                    substring(1).toUpperCase());
         }
-        return sValue;
+        if(requestContent == null) {
+            throw new JSONException("No parameters in the request");
+        } else {
+            return ((JSONObject) requestContent).get(sContentPath.split("\\.")[1]);
+        }
     }
 
     public static void setRequestJSONContent(CarbonMessage carbonMessage) throws JSONException {

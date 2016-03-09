@@ -166,10 +166,13 @@ ifElseBlock
 
 /* -> LOOP block rules */
 loopStatement
-    : LOOP WS expression NEWLINE
-      NEWLINE? statementList
-      END
-    ;
+     : LOOP WS expressionStatement NEWLINE
+       NEWLINE? loopBlock
+       END
+     ;
+
+ loopBlock
+     : statementList;
 
 refStatement
     : REF WS PIPELINENAME NEWLINE?;
@@ -186,8 +189,10 @@ groupIdentifierStatement
 commentStatement
     : COMMENT;
 
-expression
-    : EXPRESSIONX;
+expressionStatement
+    : expressionDef;
+
+expressionDef: EXPRESSIONSTRING;
 
 
 /* --- LEXER rules --- */
@@ -389,6 +394,9 @@ fragment POSTSCIPRT
 
 IDENTIFIER
     : ( 'a'..'z' | 'A'..'Z' ) ( 'a'..'z' | 'A'..'Z' | DIGIT | '_')+ ;
+
+EXPRESSIONSTRING
+    : '$' IDENTIFIER '.' IDENTIFIER ;
 
 NUMERIC
     : ( 'a'..'z' | 'A'..'Z' | DIGIT | '_')* ;
