@@ -44,8 +44,12 @@ public class IteratorMediator extends AbstractMediator {
         this.expression = expression;
     }
 
-    public void addLoopMediator(Mediator mediator) {
+    public void addIteratorMediator(Mediator mediator) {
         childLoopMediatorList.addMediator(mediator);
+    }
+
+    public MediatorCollection getIteratorMediatorList(){
+        return childLoopMediatorList;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class IteratorMediator extends AbstractMediator {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
         JSONArray jsonArrayOfRequest = (JSONArray) Evaluator.getRequestContent(carbonMessage,
                 this.expression);
-        for (int i =0; i < jsonArrayOfRequest.length(); i++) {
+        for (int i = 0; i < jsonArrayOfRequest.length(); i++) {
             for (Mediator mediator: childLoopMediatorList.getMediators()) {
                 carbonMessage.setProperty(expression.split("\\.")[1].toUpperCase(),
                         jsonArrayOfRequest.getJSONObject(i));
