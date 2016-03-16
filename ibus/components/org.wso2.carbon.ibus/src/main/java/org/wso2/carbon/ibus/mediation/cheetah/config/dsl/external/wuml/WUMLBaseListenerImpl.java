@@ -224,7 +224,7 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
             filterMediatorStack.peek().addOtherwiseMediator(mediator);
 
         } else if (ifLoopBlockStarted) {
-            iteratorMediatorStack.peek().addLoopMediator(mediator);
+            iteratorMediatorStack.peek().addIteratorMediator(mediator);
 
         } else {
             integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
@@ -256,7 +256,7 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
             filterMediatorStack.peek().addOtherwiseMediator(mediator);
 
         } else if (ifLoopBlockStarted) {
-            iteratorMediatorStack.peek().addLoopMediator(mediator);
+            iteratorMediatorStack.peek().addIteratorMediator(mediator);
 
         } else {
             integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
@@ -347,11 +347,15 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
             queryProperties.setProperty(Constants.QUERYDATA.QUERYPARAMETERS, queryParameters);
 
         Mediator mediator = MediatorFactory.getInstance().getMediator("calldatasource", ctx.OUTBOUNDDATASOURCENAME().getText(),queryProperties);
-        if(transactionMultiThenBlockStarted){
+        if(transactionMultiThenBlockStarted && (transactionMediatorStack.empty() || !(transactionMediatorStack.peek().
+                getThenMediatorList().getLastMediator() instanceof IteratorMediator))){
             transactionMediatorStack.peek().addThenMediator(mediator);
         }
-        else if (transactionElseBlockStarted){
+        else if (transactionElseBlockStarted && (transactionMediatorStack.empty() || !(transactionMediatorStack.peek().
+                getThenMediatorList().getLastMediator() instanceof IteratorMediator))){
             transactionMediatorStack.peek().addOtherwiseMediator(mediator);
+        } else if(ifLoopBlockStarted) {
+            iteratorMediatorStack.peek().addIteratorMediator(mediator);
         }
         else {
             integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
@@ -362,11 +366,7 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
 
         } else if(ifElseBlockStarted) {
             filterMediatorStack.peek().addOtherwiseMediator(mediator);
-
-        } else if(ifLoopBlockStarted) {
-            iteratorMediatorStack.peek().addLoopMediator(mediator);
-
-        } else {
+        else {
             integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(mediator);
         }*/
         pipelineStack.pop();
@@ -383,15 +383,17 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         Pipeline pipelineCurr = integrationFlow.getEsbConfigHolder().getPipeline(pipelineName);
         MediatorCollection pipelineMediators = pipelineCurr.getMediators();
         Mediator prevMediator = null;
-        if(transactionMultiThenBlockStarted) {
+        if(transactionMultiThenBlockStarted && (transactionMediatorStack.empty() || !(transactionMediatorStack.peek().
+                getThenMediatorList().getLastMediator() instanceof IteratorMediator))) {
             prevMediator= transactionMediatorStack.peek().getThenMediatorList().getLastMediator();
-        }else{
+        } else if (ifLoopBlockStarted){
+            prevMediator = iteratorMediatorStack.peek().getIteratorMediatorList().getLastMediator();
+        } else {
             prevMediator = pipelineMediators.getLastMediator();
         }
-
-        if(prevMediator != null && prevMediator instanceof CallDataSourceMediator)
-            prevMediator.addProperty(Constants.QUERYDATA.RESULTSET,sText.toUpperCase());
-        //
+        if(prevMediator != null && prevMediator instanceof CallDataSourceMediator) {
+            prevMediator.addProperty(Constants.QUERYDATA.RESULTSET, sText.toUpperCase());
+        }
         super.exitInvokeFromTargetDataSource(ctx);
     }
 
@@ -481,6 +483,9 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
     @Override
     public void exitLoopBlock(WUMLParser.LoopBlockContext ctx) {
         ifLoopBlockStarted = false;
+        if (!iteratorMediatorStack.isEmpty()) {
+            iteratorMediatorStack.pop();
+        }
         super.exitLoopBlock(ctx);
     }
 
@@ -494,7 +499,17 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
     @Override
     public void exitExpressionStatement(WUMLParser.ExpressionStatementContext ctx) {
         IteratorMediator iteratorMediator = new IteratorMediator(ctx.expressionDef().EXPRESSIONSTRING().getText());
-        integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(iteratorMediator);
+        if (iteratorMediatorStack.empty()) {
+            integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(iteratorMediator);
+        } else {
+            iteratorMediatorStack.peek().addIteratorMediator(iteratorMediator);
+        }
+        /*
+        This is added to handle loops inside transaction.
+         */
+        if (transactionMultiThenBlockStarted) {
+            transactionMediatorStack.peek().addThenMediator(iteratorMediator);
+        }
         iteratorMediatorStack.push(iteratorMediator);
         super.exitExpressionStatement(ctx);
     }

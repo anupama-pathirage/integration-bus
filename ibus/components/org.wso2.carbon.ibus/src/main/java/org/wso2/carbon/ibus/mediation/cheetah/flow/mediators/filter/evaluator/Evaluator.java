@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -91,10 +92,13 @@ public class Evaluator {
 
     public static void setRequestJSONContent(CarbonMessage carbonMessage) throws JSONException {
         if(!carbonMessage.isEmpty()) {
-            ByteBuffer buff = carbonMessage.getMessageBody();
-            //if(buff.hasArray()){ //TODO::Check is the received one is the last buffer
-            CharBuffer charBuffer = StandardCharsets.US_ASCII.decode(buff);
-            String bodyContent = charBuffer.toString();
+            List<ByteBuffer> bufferList = carbonMessage.getFullMessageBody();
+            String bodyContent = "";
+            for (ByteBuffer buff : bufferList) {
+                //if(buff.hasArray()){ //TODO::Check is the received one is the last buffer
+                CharBuffer charBuffer = StandardCharsets.US_ASCII.decode(buff);
+                bodyContent += charBuffer.toString();
+            }
             if (!"".equals(bodyContent)) {
                 JSONObject jsonobj = new JSONObject(bodyContent);
                 carbonMessage.setProperty(Constants.HTTPREQUEST.REQUESTBODY,jsonobj);
