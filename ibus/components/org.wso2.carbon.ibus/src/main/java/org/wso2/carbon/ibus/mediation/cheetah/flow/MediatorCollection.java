@@ -77,6 +77,10 @@ public class MediatorCollection {
         mediators.add(mediator);
     }
 
+    public void pushMediator(Mediator mediator) {
+        mediators.add(mediator);
+    }
+
     public Mediator findPrevCallMediator(){
         Mediator med = null;
         ListIterator li = mediators.listIterator(mediators.size());

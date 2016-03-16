@@ -45,7 +45,7 @@ public class IteratorMediator extends AbstractMediator {
     }
 
     public void addIteratorMediator(Mediator mediator) {
-        childLoopMediatorList.addMediator(mediator);
+        childLoopMediatorList.pushMediator(mediator);
     }
 
     public MediatorCollection getIteratorMediatorList(){

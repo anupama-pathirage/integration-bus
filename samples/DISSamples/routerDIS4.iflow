@@ -6,7 +6,7 @@ participant inboundendpointListener : InboundEndpoint(protocol("http"),port(8284
 
 participant pipeline1 : Pipeline("router_flow")
 
-participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/ActivitiEmployee"),username("root"),password("root"))
+participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/books"),username("root"),password("1234"))
 
 inboundendpointListener -> pipeline1 : "request"
 
@@ -20,7 +20,7 @@ inboundendpointListener -> pipeline1 : "request"
         loop $cities.employees
         
             pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name,EmpId, CityID) values(?,?,?)"),queryparameter($employees.EmpName,$employees.EmpId,$rs0.generatedid))
-            outbounddatasource1 -> pipeline1 : resultset("rs2")
+            outbounddatasource1 -> pipeline1 : resultset("rs1")
         end
     end
     
@@ -30,10 +30,10 @@ inboundendpointListener -> pipeline1 : "request"
 log("Before Filter")
 
 pipeline1 -> outbounddatasource1 : query(querystatement("SELECT * FROM Employee"),queryparameter())
-outbounddatasource1 -> pipeline1 : resultset("rs1")
+outbounddatasource1 -> pipeline1 : resultset("rs2")
 
 log("After Filter")
-generateresponse("JSON,rs1")
+generateresponse("JSON")
 
 pipeline1 -> inboundendpointListener : "Final_Response"
 
