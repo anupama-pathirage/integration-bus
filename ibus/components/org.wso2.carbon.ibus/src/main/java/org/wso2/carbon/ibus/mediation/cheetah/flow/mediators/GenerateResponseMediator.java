@@ -48,6 +48,7 @@ public class GenerateResponseMediator extends AbstractMediator {
     public static final String RESPONSE_TYPE_XML = "XML";
 
     private ResponseType responseType = ResponseType.json;
+    private String resultSetName = "RS";
 
     @Override
     public String getName() {
@@ -56,12 +57,18 @@ public class GenerateResponseMediator extends AbstractMediator {
 
     public void setConfigs(String configs) {
         if(configs != null && !configs.isEmpty()) {
-            if(configs.equalsIgnoreCase(Constants.HTTPREQUEST.RESPONSE_TYPE_JSON))
-                responseType = ResponseType.json;
-            else if(configs.equalsIgnoreCase(Constants.HTTPREQUEST.RESPONSE_TYPE_XML))
-                responseType = ResponseType.xml;
-            else
-                log.error("Invalid Response Type Requested:"+configs+".Set to Default Type:JSON");
+            String[] configArray = configs.split(",");
+            if(configArray.length == 2){
+                String sResponseType = configArray[0];
+                if(sResponseType.equalsIgnoreCase(Constants.HTTPREQUEST.RESPONSE_TYPE_JSON))
+                    responseType = ResponseType.json;
+                else if(sResponseType.equalsIgnoreCase(Constants.HTTPREQUEST.RESPONSE_TYPE_XML))
+                    responseType = ResponseType.xml;
+                else
+                    log.error("Invalid Response Type Requested:"+configs+".Set to Default Type:JSON");
+
+                resultSetName = configArray[1].toUpperCase();
+            }
         }
 
     }
@@ -75,27 +82,24 @@ public class GenerateResponseMediator extends AbstractMediator {
 
     public DefaultCarbonMessage getDefaultCarbonResponse(CarbonMessage carbonMessage){
         DefaultCarbonMessage defCmsg = new DefaultCarbonMessage();
-        defCmsg.setHeader("Transfer-Encoding", "chunked");
+        defCmsg.setHeader("Transfer-Encoding", "chunked");//TODO::Remove hard coded values
         defCmsg.setHeader("Connection","keep-alive");
-        //defCmsg.setHeader("Content-Encoding","gzip");
-
-
-
-        defCmsg.setProperty("PORT","8080"); //TODO::Remove hard coded values
         defCmsg.setProperty("DIRECTION","DIRECTION-RESPONSE");
         defCmsg.setProperty("HOST","localhost");
         defCmsg.setProperty("HTTP_STATUS_CODE",200);
+        //defCmsg.setHeader("Content-Encoding","gzip");
+        //defCmsg.setProperty("PORT","8080");
 
 
         Charset charset = Charset.forName("UTF-8");
         if(responseType == ResponseType.json){
             defCmsg.setHeader("Content-Type","application/json");
-            String msg = getJSONResponse((ResultSet)carbonMessage.getProperty("RS1")); //TODO::Remove hard coded values
+            String msg = getJSONResponse((ResultSet)carbonMessage.getProperty(resultSetName));
             ByteBuffer bf = ByteBuffer.wrap(msg.getBytes(charset));
             defCmsg.addMessageBody(bf);
         }
         else{
-            String msg = getXMLResponse((ResultSet)carbonMessage.getProperty("RS"));
+            String msg = getXMLResponse((ResultSet)carbonMessage.getProperty(resultSetName));
             ByteBuffer bf = ByteBuffer.wrap(msg.getBytes(charset));
             defCmsg.addMessageBody(bf);
         }

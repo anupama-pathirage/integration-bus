@@ -18,6 +18,7 @@
 package org.wso2.carbon.ibus.mediation.cheetah.config.dsl.external.wuml;
 
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.ibus.mediation.cheetah.Constants;
@@ -331,7 +332,13 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
     @Override
     public void exitInvokeToTargetDataSource(WUMLParser.InvokeToTargetDataSourceContext ctx) {
         String queryStatement = StringParserUtil.getValueWithinDoubleQuotes(ctx.queryDataDef().QUERYSTATEMENTDEF().getText());
-        String queryParameters = StringParserUtil.getValueWithinBrackets(ctx.queryDataDef().QUERYPARAMETERDEF().getText());
+        String queryParameters =null;
+        TerminalNode node = ctx.queryDataDef().QUERYPARAMETERDEF();
+        if(node != null)
+        {
+            queryParameters = StringParserUtil.getValueWithinBrackets(node.getText());
+        }
+
         Properties queryProperties = new Properties();
         if(queryStatement != null)
             queryProperties.setProperty(Constants.QUERYDATA.QUERYSTATEMENT, queryStatement);
