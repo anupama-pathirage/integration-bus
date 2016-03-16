@@ -1,0 +1,40 @@
+@startuml
+
+IntegrationFlow : Message_Router
+
+participant inboundendpointListener : InboundEndpoint(protocol("http"),port(8284),context("/router"))
+
+participant pipeline1 : Pipeline("router_flow")
+
+participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/books"),username("root"),password("1234"))
+
+inboundendpointListener -> pipeline1 : "request"
+
+
+
+    loop $input.cities
+    
+        pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($cities.CityName,$cities.Country))
+        outbounddatasource1 -> pipeline1 : resultset("rs0")
+        
+        loop $cities.employees
+        
+            pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name,EmpId, CityID) values(?,?,?)"),queryparameter($employees.EmpName,$employees.EmpId,$rs0.generatedid))
+            outbounddatasource1 -> pipeline1 : resultset("rs1")
+        end
+    end
+    
+
+
+
+log("Before Filter")
+
+pipeline1 -> outbounddatasource1 : query(querystatement("SELECT * FROM Employee"),queryparameter())
+outbounddatasource1 -> pipeline1 : resultset("rs2")
+
+log("After Filter")
+generateresponse("JSON")
+
+pipeline1 -> inboundendpointListener : "Final_Response"
+
+@enduml

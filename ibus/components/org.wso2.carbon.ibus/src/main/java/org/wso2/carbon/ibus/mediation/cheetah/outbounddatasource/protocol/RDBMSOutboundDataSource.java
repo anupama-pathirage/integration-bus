@@ -69,7 +69,11 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
         log.info("Received to RDBMSOutboundDataSource:");
 
         Properties queryProperties = (Properties)carbonMessage.getProperty(Constants.QUERYDATA.QUERYPROPERTIES);
-        boolean bBeginTrans = (boolean)carbonMessage.getProperty(Constants.TRANSACTION.BEGINTRANS);
+        Object beginTransPropertyObj = carbonMessage.getProperty(Constants.TRANSACTION.BEGINTRANS);
+        boolean bBeginTrans = false;
+        if (beginTransPropertyObj != null) {
+            bBeginTrans = (boolean)carbonMessage.getProperty(Constants.TRANSACTION.BEGINTRANS);
+        }
         if(bBeginTrans) {
             log.info("Begin Trans Received");
             rdbmsConnection.setAutoCommit(false);
