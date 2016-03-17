@@ -347,13 +347,23 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
             queryProperties.setProperty(Constants.QUERYDATA.QUERYPARAMETERS, queryParameters);
 
         Mediator mediator = MediatorFactory.getInstance().getMediator("calldatasource", ctx.OUTBOUNDDATASOURCENAME().getText(),queryProperties);
-        if(transactionMultiThenBlockStarted && (transactionMediatorStack.empty() || !(transactionMediatorStack.peek().
-                getThenMediatorList().getLastMediator() instanceof IteratorMediator))){
-            transactionMediatorStack.peek().addThenMediator(mediator);
+        if(transactionMultiThenBlockStarted) {
+            if (!transactionMediatorStack.empty()) {
+                if (transactionMediatorStack.peek().getThenMediatorList().getMediators().size() == 0 ||
+                        !(transactionMediatorStack.peek().getThenMediatorList().getLastMediator()
+                                instanceof IteratorMediator)) {
+                    transactionMediatorStack.peek().addThenMediator(mediator);
+                }
+            }
         }
-        else if (transactionElseBlockStarted && (transactionMediatorStack.empty() || !(transactionMediatorStack.peek().
-                getThenMediatorList().getLastMediator() instanceof IteratorMediator))){
-            transactionMediatorStack.peek().addOtherwiseMediator(mediator);
+        else if (transactionElseBlockStarted) {
+            if (!transactionMediatorStack.empty()) {
+                if (transactionMediatorStack.peek().getThenMediatorList().getMediators().size() == 0 ||
+                        !(transactionMediatorStack.peek().getThenMediatorList().getLastMediator()
+                                instanceof IteratorMediator)) {
+                    transactionMediatorStack.peek().addOtherwiseMediator(mediator);
+                }
+            }
         } else if(ifLoopBlockStarted) {
             iteratorMediatorStack.peek().addIteratorMediator(mediator);
         }
@@ -383,9 +393,14 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
         Pipeline pipelineCurr = integrationFlow.getEsbConfigHolder().getPipeline(pipelineName);
         MediatorCollection pipelineMediators = pipelineCurr.getMediators();
         Mediator prevMediator = null;
-        if(transactionMultiThenBlockStarted && (transactionMediatorStack.empty() || !(transactionMediatorStack.peek().
-                getThenMediatorList().getLastMediator() instanceof IteratorMediator))) {
-            prevMediator= transactionMediatorStack.peek().getThenMediatorList().getLastMediator();
+        if(transactionMultiThenBlockStarted) {
+            if (!transactionMediatorStack.empty()) {
+                if (transactionMediatorStack.peek().getThenMediatorList().getMediators().size() == 0 ||
+                        !(transactionMediatorStack.peek().getThenMediatorList().getLastMediator()
+                                instanceof IteratorMediator)) {
+                    prevMediator = transactionMediatorStack.peek().getThenMediatorList().getLastMediator();
+                }
+            }
         } else if (ifLoopBlockStarted){
             prevMediator = iteratorMediatorStack.peek().getIteratorMediatorList().getLastMediator();
         } else {
