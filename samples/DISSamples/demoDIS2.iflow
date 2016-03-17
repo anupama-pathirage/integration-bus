@@ -1,0 +1,36 @@
+@startuml
+
+IntegrationFlow : Message_Router
+
+participant inboundendpointListener : InboundEndpoint(protocol("http"),port(8284),context("/router"))
+
+participant pipeline1 : Pipeline("router_flow")
+
+participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/books"),username("root"),password("1234"))
+
+inboundendpointListener -> pipeline1 : "request"
+
+log("Before Insert")
+
+group transaction
+
+    pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($input.CityName,$input.Country)
+    outbounddatasource1 -> pipeline1 : resultset("rs0")
+    
+    pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name,EmpId, CityID) values(?,?,?)"),queryparameter($input.EmpName,$input.EmpId,$rs0.generatedid))
+    outbounddatasource1 -> pipeline1 : resultset("rs1")
+    
+else
+        log("Transaction Error - Rolled back")
+
+end
+
+log("After Insert")
+pipeline1 -> outbounddatasource1 : query(querystatement("SELECT * FROM Employee"))
+outbounddatasource1 -> pipeline1 : resultset("rs2")
+
+generateresponse("JSON,rs2")
+
+pipeline1 -> inboundendpointListener : "Final_Response"
+
+@enduml
