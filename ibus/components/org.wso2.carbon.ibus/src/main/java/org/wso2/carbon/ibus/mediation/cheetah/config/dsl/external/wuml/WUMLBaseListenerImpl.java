@@ -499,17 +499,17 @@ public class WUMLBaseListenerImpl extends WUMLBaseListener {
     @Override
     public void exitExpressionStatement(WUMLParser.ExpressionStatementContext ctx) {
         IteratorMediator iteratorMediator = new IteratorMediator(ctx.expressionDef().EXPRESSIONSTRING().getText());
+
+
         if (iteratorMediatorStack.empty()) {
-            integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(iteratorMediator);
+            if(transactionMultiThenBlockStarted)
+                transactionMediatorStack.peek().addThenMediator(iteratorMediator);
+            else
+                integrationFlow.getEsbConfigHolder().getPipeline(pipelineStack.peek()).addMediator(iteratorMediator);
         } else {
             iteratorMediatorStack.peek().addIteratorMediator(iteratorMediator);
         }
-        /*
-        This is added to handle loops inside transaction.
-         */
-        if (transactionMultiThenBlockStarted) {
-            transactionMediatorStack.peek().addThenMediator(iteratorMediator);
-        }
+
         iteratorMediatorStack.push(iteratorMediator);
         super.exitExpressionStatement(ctx);
     }

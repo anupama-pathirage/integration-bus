@@ -87,12 +87,14 @@ public class CallDataSourceMediator extends AbstractMediator {
 
         try {
             dataSource.receive(carbonMessage, carbonCallback);
+            return next(carbonMessage, carbonCallback);
         }catch (Exception e){
             AbstractMediator absMediator = (AbstractMediator)carbonMessage.getProperty(Constants.TRANSACTION.ERRORSEQ);
             setNext(absMediator);
+            return next(carbonMessage, carbonCallback);
         }
 
 
-        return next(carbonMessage, carbonCallback);
+
     }
 }

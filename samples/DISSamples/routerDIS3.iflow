@@ -10,19 +10,29 @@ participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdb
 
 inboundendpointListener -> pipeline1 : "request"
 
+group Transaction
 
+        log("Within Transaction")
 
-    loop $input.cities
+        loop $input.cities
     
-        pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($cities.CityName,$cities.Country))
-        outbounddatasource1 -> pipeline1 : resultset("rs0")
-        
-        loop $cities.employees
+          pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($cities.CityName,$cities.Country))
+          outbounddatasource1 -> pipeline1 : resultset("rs0")
+         
+          loop $cities.employees
         
             pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name,EmpId, CityID) values(?,?,?)"),queryparameter($employees.EmpName,$employees.EmpId,$rs0.generatedid))
             outbounddatasource1 -> pipeline1 : resultset("rs2")
-        end
-    end
+          end
+       end
+      
+       log("end Transaction")
+
+else
+        log("Error Sequence")
+
+end
+
     
 
 

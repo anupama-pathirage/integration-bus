@@ -57,8 +57,9 @@ public class BeginTransactionMediator extends AbstractMediator implements FlowCo
 
         carbonMessage.setProperty(Constants.TRANSACTION.ERRORSEQ,childOtherwiseMediatorList.getFirstMediator());
         carbonMessage.setProperty(Constants.TRANSACTION.BEGINTRANS,true);
-        childThenMediatorList.getFirstMediator().receive(carbonMessage,new FlowControllerCallback(carbonCallback, this));
-        return true;
+        //childThenMediatorList.getFirstMediator().receive(carbonMessage,new FlowControllerCallback(carbonCallback, this));
+        childThenMediatorList.getFirstMediator().receive(carbonMessage,carbonCallback);
+        return next(carbonMessage, carbonCallback);
     }
 
 }

@@ -52,6 +52,7 @@ public class EndTransationMediator extends AbstractMediator {
             }
 
             rdbmsConnection.setAutoCommit(true);
+            carbonMessage.setProperty(Constants.TRANSACTION.BEGINTRANS,false);
         }
         return next(carbonMessage, carbonCallback);
     }
