@@ -1,21 +1,22 @@
 @startuml
 
-IntegrationFlow : Message_Router
+IntegrationFlow : DISWorkflow
 
-participant inboundendpointListener : InboundEndpoint(protocol("http"),port(8284),context("/router"))
+participant inboundendpointListener : InboundEndpoint(protocol("http"),port(8082),context("/disworkflow"))
 
-participant pipeline1 : Pipeline("router_flow")
+participant pipeline1 : Pipeline("dis_workflow")
 
-participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/books"),username("root"),password("1234"))
+participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/DISTEST"),username("root"),password("root"))
 
 inboundendpointListener -> pipeline1 : "request"
 
 log("Before Select")
 
-pipeline1 -> outbounddatasource1 : query(querystatement("SELECT * FROM Employee"),queryparameter())
+pipeline1 -> outbounddatasource1 : query(querystatement("SELECT * FROM Employee"))
 outbounddatasource1 -> pipeline1 : resultset("rs1")
 
 log("After Select")
+
 generateresponse("JSON,rs1")
 
 pipeline1 -> inboundendpointListener : "Final_Response"

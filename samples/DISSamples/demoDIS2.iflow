@@ -1,12 +1,12 @@
 @startuml
 
-IntegrationFlow : Message_Router
+IntegrationFlow : DISWorkflow
 
-participant inboundendpointListener : InboundEndpoint(protocol("http"),port(8284),context("/router"))
+participant inboundendpointListener : InboundEndpoint(protocol("http"),port(8082),context("/disworkflow"))
 
-participant pipeline1 : Pipeline("router_flow")
+participant pipeline1 : Pipeline("dis_workflow")
 
-participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/books"),username("root"),password("1234"))
+participant outbounddatasource1 : OutboundDataSource(protocol("rdbms"),host("jdbc:mysql://localhost:3306/DISTEST"),username("root"),password("root"))
 
 inboundendpointListener -> pipeline1 : "request"
 
@@ -14,12 +14,12 @@ log("Before Insert")
 
 group transaction
 
-    pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($input.CityName,$input.Country)
+    pipeline1 -> outbounddatasource1 : query(querystatement("Insert into Location(City, Country) Values(?,?)"),queryparameter($input.CityName,$input.Country))
     outbounddatasource1 -> pipeline1 : resultset("rs0")
-    
-    pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name,EmpId, CityID) values(?,?,?)"),queryparameter($input.EmpName,$input.EmpId,$rs0.generatedid))
+
+    pipeline1 -> outbounddatasource1 : query(querystatement("insert into Employee(Name,CityID) values(?,?)"),queryparameter($input.EmpName,$rs0.generatedid))
     outbounddatasource1 -> pipeline1 : resultset("rs1")
-    
+
 else
         log("Transaction Error - Rolled back")
 

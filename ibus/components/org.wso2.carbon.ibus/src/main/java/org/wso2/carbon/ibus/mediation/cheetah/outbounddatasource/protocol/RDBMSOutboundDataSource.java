@@ -66,8 +66,6 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback)
             throws Exception {
 
-        log.info("Received to RDBMSOutboundDataSource:");
-
         Properties queryProperties = (Properties)carbonMessage.getProperty(Constants.QUERYDATA.QUERYPROPERTIES);
         Object beginTransPropertyObj = carbonMessage.getProperty(Constants.TRANSACTION.BEGINTRANS);
         boolean bBeginTrans = false;
@@ -75,12 +73,9 @@ public class RDBMSOutboundDataSource extends OutboundDataSource {
             bBeginTrans = (boolean)carbonMessage.getProperty(Constants.TRANSACTION.BEGINTRANS);
         }
         if(bBeginTrans) {
-            log.info("Begin Trans Received");
             rdbmsConnection.setAutoCommit(false);
             carbonMessage.setProperty(Constants.TRANSACTION.CONNECTIONS,rdbmsConnection);
         }
-        else
-            log.info("No Begin Trans");
 
         if(queryProperties != null){
             boolean bExecuteNonQuery = false;

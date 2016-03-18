@@ -75,8 +75,8 @@ public class GenerateResponseMediator extends AbstractMediator {
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        log.info("Message received at Generate Response Mediator");
         DefaultCarbonMessage cMsg = getDefaultCarbonResponse(carbonMessage);
+        log.info("Response Generated for:"+resultSetName);
         return next(cMsg, carbonCallback);
     }
 
